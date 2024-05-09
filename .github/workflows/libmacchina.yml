@@ -16,6 +16,5 @@ jobs:
       - name: Run Rust example
         run: cargo run --example test
 
-      - name: Run free
-        run: free -h
-
+      - name: Check system meory
+        run: vm_stat

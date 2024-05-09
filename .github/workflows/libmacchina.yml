@@ -1,4 +1,4 @@
-name: testing
+name: Testing
 
 on:
   push:
@@ -6,16 +6,16 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Rust
-      uses: actions/setup-rust@v1
-      with:
-        rust-version: stable
-    - name: Run libmacchina
-      run: cargo run --example=test
-    - name: Run free
-      run: free -h
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run Rust example
+        run: cargo run --example test
+
+      - name: Run free
+        run: free -h
+

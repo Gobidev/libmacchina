@@ -13,8 +13,11 @@ jobs:
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Run Rust example
+      - name: libmacchina
         run: cargo run --example test
 
-      - name: Check system meory
+      - name: vm_stat
         run: vm_stat
+
+      - name: sysctl
+        run: sysctl -a

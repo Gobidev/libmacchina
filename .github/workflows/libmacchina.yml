@@ -1,112 +1,26 @@
-on: [push, pull_request]
+name: testing
 
-name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  checks:
-    name: ${{ matrix.name }} (${{ matrix.target }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        target:
-          - x86_64-unknown-linux-gnu
-          - x86_64-apple-darwin
-          - x86_64-pc-windows-msvc
-          - x86_64-unknown-netbsd
-          - x86_64-unknown-freebsd
-          - aarch64-linux-android
-          - aarch64-unknown-linux-gnu
-          - armv7-unknown-linux-gnueabihf
-
-        include:
-          - os: ubuntu-latest
-            name: Linux
-            target: x86_64-unknown-linux-gnu
-            cross: false
-            test: true
-
-          - os: macos-latest
-            name: macOS
-            target: x86_64-apple-darwin
-            cross: false
-            test: true
-
-          - os: windows-latest
-            name: Windows
-            target: x86_64-pc-windows-msvc
-            cross: false
-            test: true
-
-          - os: ubuntu-latest
-            name: NetBSD
-            target: x86_64-unknown-netbsd
-            cross: true
-            test: false
-
-          - os: ubuntu-latest
-            name: FreeBSD
-            target: x86_64-unknown-freebsd
-            cross: true
-            test: false
-
-          - os: ubuntu-latest
-            name: Android
-            target: aarch64-linux-android
-            cross: true
-            test: true
-
-          - os: ubuntu-latest
-            name: OpenWrt
-            target: aarch64-unknown-linux-gnu
-            cross: true
-            test: true
-            cargo_args: --features "openwrt"
-
-          - os: ubuntu-latest
-            name: Linux ARMv7
-            target: armv7-unknown-linux-gnueabihf
-            cross: true
-            test: true
+  build:
+    runs-on: macos-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Bootstrap
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          components: rustfmt, clippy
-          target: ${{ matrix.target }}
-
-      - name: Formatting
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
-          use-cross: ${{ matrix.cross }}
-        continue-on-error: false
-
-      - name: Lints
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --target=${{ matrix.target }} -- --no-deps -D clippy::all
-          use-cross: ${{ matrix.cross }}
-        continue-on-error: false
-
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --target=${{ matrix.target }} ${{ matrix.cargo_args }}
-          use-cross: ${{ matrix.cross }}
-
-      - name: Test 
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --target=${{ matrix.target }} ${{ matrix.cargo_args }}
-          use-cross: ${{ matrix.cross }}
-        if: ${{ matrix.test }}
+    - name: Set up Rust
+      uses: actions/setup-rust@v1
+      with:
+        rust-version: stable
+    - name: Run libmacchina
+      run: cargo run --example=test
+    - name: Run free
+      run: free -h
